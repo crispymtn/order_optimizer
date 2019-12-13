@@ -1,18 +1,21 @@
 # OrderOptimizer
 
-The `OrderOptimizer` gem helps to optimize orders if the goods are offered in different pack sizes and in different discount levels.
+The `OrderOptimizer` gem helps to optimize orders when the goods are offered in different pack sizes and in different discount levels.
 
 Imagine a product can be ordered in different pack sizes and each pack size has a different price per unit. For example like this:
 
 | Pack size | Price per Unit |
+|-----------|----------------|
 |    1000   |      3.90      |
 |     100   |      4.00      |
 |      10   |      6.00      |
 |       1   |      9.00      |
 
-It is quite obvious that it is cheaper buying one 10-pack instead of nine 1-packs when you need 9 units (because the 10-pack costs 60.00 but 9 1-packs would cost 81.00). But what would be the cheapest combination when you need 946 units? Or 947?
+In this example, it is quite obvious that it is cheaper buying one 10-pack instead of nine 1-packs when you need 9 units (because the 10-pack costs 60.00 but nine 1-packs would cost 81.00). 
 
-The `OrderOptimizer` answers this kind of question in a performat way.
+But what would be the cheapest combination when you need 946 units? Or 947?
+
+The `OrderOptimizer` answers this kind of question in a performant way.
 
 ## Installation
 
@@ -33,6 +36,7 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
+# Initialize the optimizer with a catalog
 order_optimizer = OrderOptimizer.new(
   '1-pack' => { quantity: 1, price_per_unit: 9 },
   '10-pack' => { quantity: 10, price_per_unit: 6 },
@@ -40,6 +44,7 @@ order_optimizer = OrderOptimizer.new(
   '1000-pack' => { quantity: 1000, price_per_unit: 3.9 }
 )
 
+# Pick the cheapers possible order for the required quantity
 cheapest_order_for_946_units = order_optimizer.cheapest_order(required_qty: 946)
 cheapest_order_for_946_units.quantity # =>  946
 cheapest_order_for_946_units.total    # => 3894.00
@@ -49,7 +54,7 @@ cheapest_order_for_947_units = order_optimizer.cheapest_order(required_qty: 947)
 cheapest_order_for_947_units.quantity # => 1_000
 cheapest_order_for_947_units.total    # => 3_900.00
 cheapest_order_for_947_units.skus     # => { '1000-pack' => 1 }
-``
+```
 
 ## Development
 
