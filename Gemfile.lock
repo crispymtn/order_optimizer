@@ -1,0 +1,22 @@
+PATH
+  remote: .
+  specs:
+    order_optimizer (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    minitest (5.13.0)
+    rake (13.0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler
+  minitest
+  order_optimizer!
+  rake
+
+BUNDLED WITH
+   2.0.2
