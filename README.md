@@ -11,7 +11,7 @@ Imagine a product can be ordered in different pack sizes and each pack size has 
 |      10   |      6.00      |
 |       1   |      9.00      |
 
-In this example, it is quite obvious that it is cheaper buying one 10-pack instead of nine 1-packs when you need 9 units (because the 10-pack costs 60.00 but nine 1-packs would cost 81.00). 
+In this example, it is quite obvious that it is cheaper buying one 10-pack instead of nine 1-packs when you need 9 units (because the 10-pack costs 60.00 but nine 1-packs would cost 81.00).
 
 But what would be the cheapest combination when you need 946 units? Or 947?
 
@@ -54,6 +54,34 @@ cheapest_order_for_947_units = order_optimizer.cheapest_order(required_qty: 947)
 cheapest_order_for_947_units.quantity # => 1_000
 cheapest_order_for_947_units.total    # => 3_900.00
 cheapest_order_for_947_units.skus     # => { '1000-pack' => 1 }
+```
+
+It is possible to define dicount prices a minimum quantity:
+
+```ruby
+order_optimizer = OrderOptimizer.new(
+  '1-pack' => { quantity: 1, price_per_unit: 9 },
+  '10-discount' => { quantity: 1, min_quantity: 10, price_per_unit: 8 },
+  '20-pack' => { quantity: 20, price_per_unit: 7 }
+)
+
+order_optimizer.cheapest_order(required_qty: 8).skus
+#=> { '1-pack' => 8 }
+
+order_optimizer.cheapest_order(required_qty: 9).skus
+#=> { '10-discount' => 10 }
+
+order_optimizer.cheapest_order(required_qty: 17).skus
+#=> { '10-discount' => 17 }
+
+order_optimizer.cheapest_order(required_qty: 18).skus
+#=> { '20-pack' => 1 }
+
+order_optimizer.cheapest_order(required_qty: 21).skus
+#=> { '20-pack' => 1, '1-pack' => 1 }
+
+order_optimizer.cheapest_order(required_qty: 29).skus
+#=> { '20-pack' => 1, '10-discount' => 10 }
 ```
 
 ## Development

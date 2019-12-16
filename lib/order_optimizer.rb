@@ -10,21 +10,39 @@ class OrderOptimizer
   end
 
   def cheapest_order(required_qty:)
-    possible_orders(required_qty: required_qty)
-      .min_by(&:total)
+    orders =
+      possible_orders(skus: @catalog.skus_without_min_quantities, required_qty: required_qty) +
+      possible_orders(skus: @catalog.skus_with_min_quantities, required_qty: required_qty) +
+      possible_orders(skus: @catalog.skus, required_qty: required_qty)
+
+    orders.min_by(&:total) || OrderOptimizer::Order.new
   end
 
   private
 
-  def possible_orders(required_qty:)
+  def possible_orders(required_qty:, skus:)
     [].tap do |orders|
-      skus  = @catalog.skus
       order = OrderOptimizer::Order.new
-      while sku = skus.shift
+
+      while required_qty.positive? && (sku = skus.shift)
         count, remainder = (required_qty - order.quantity).divmod(sku.quantity)
+        count, remainder = adjustment_for_skus_with_min_quantity(sku, count, remainder)
+
         order.add(sku, count: count) unless count.zero?
-        orders << (remainder.zero? ? order.dup : order.dup.add(sku))
+
+        orders << (remainder.positive? ? order.dup.add(sku) : order.dup)
+
+        order = OrderOptimizer::Order.new if sku.min_quantity
       end
     end
+  end
+
+  def adjustment_for_skus_with_min_quantity(sku, count, remainder)
+    units = count * sku.quantity
+
+    return count, remainder if sku.min_quantity.nil? || units >= sku.min_quantity
+
+    delta = ((sku.min_quantity - units).to_f / sku.quantity).ceil
+    [count + delta, remainder - (delta * sku.quantity)]
   end
 end
