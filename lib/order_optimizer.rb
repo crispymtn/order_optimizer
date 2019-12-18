@@ -1,8 +1,8 @@
 require 'bigdecimal'
 
-require "order_optimizer/catalog"
-require "order_optimizer/order"
-require "order_optimizer/version"
+require 'order_optimizer/catalog'
+require 'order_optimizer/order'
+require 'order_optimizer/version'
 
 class OrderOptimizer
   def initialize(skus)
@@ -10,39 +10,47 @@ class OrderOptimizer
   end
 
   def cheapest_order(required_qty:)
-    orders =
-      possible_orders(skus: @catalog.skus_without_min_quantities, required_qty: required_qty) +
-      possible_orders(skus: @catalog.skus_with_min_quantities, required_qty: required_qty) +
-      possible_orders(skus: @catalog.skus, required_qty: required_qty)
-
-    orders.min_by(&:total) || OrderOptimizer::Order.new
+    possible_orders(skus: @catalog.skus, required_qty: required_qty)
+      .min_by(&:total) || OrderOptimizer::Order.new(required_qty: required_qty)
   end
 
   private
 
   def possible_orders(required_qty:, skus:)
-    [].tap do |orders|
-      order = OrderOptimizer::Order.new
+    return [] if required_qty < 1 || skus.empty?
 
-      while required_qty.positive? && (sku = skus.shift)
-        count, remainder = (required_qty - order.quantity).divmod(sku.quantity)
-        count, remainder = adjustment_for_skus_with_min_quantity(sku, count, remainder)
+    orders = []
 
-        order.add(sku, count: count) unless count.zero?
+    skus.each do |sku|
+      orders.reject(&:complete?).each do |order|
+        count, remainder = count_and_remainder_for_sku(order.missing_qty, sku)
 
-        orders << (remainder.positive? ? order.dup.add(sku) : order.dup)
+        orders << order.dup.add(sku, count: count) unless count.zero?
+        orders << order.dup.add(sku, count: count + 1) if remainder
+      end
 
-        order = OrderOptimizer::Order.new if sku.min_quantity
+      count, remainder = count_and_remainder_for_sku(required_qty, sku)
+
+      unless count.zero?
+        orders << OrderOptimizer::Order.new(required_qty: required_qty).add(sku, count: count)
+      end
+      if remainder
+        orders << OrderOptimizer::Order.new(required_qty: required_qty).add(sku, count: count + 1)
       end
     end
+
+    orders.select(&:complete?)
   end
 
-  def adjustment_for_skus_with_min_quantity(sku, count, remainder)
-    units = count * sku.quantity
+  def count_and_remainder_for_sku(quantity, sku)
+    count, remainder = quantity.divmod(sku.quantity)
 
-    return count, remainder if sku.min_quantity.nil? || units >= sku.min_quantity
-
-    delta = ((sku.min_quantity - units).to_f / sku.quantity).ceil
-    [count + delta, remainder - (delta * sku.quantity)]
+    if sku.min_quantity && count * sku.quantity < sku.min_quantity
+      new_count = (sku.min_quantity.to_f / sku.quantity).ceil
+      remainder -= (new_count - count) * sku.quantity
+      [new_count, [remainder, 0].max]
+    else
+      [count, remainder]
+    end
   end
 end

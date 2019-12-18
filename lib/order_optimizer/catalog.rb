@@ -9,13 +9,5 @@ class OrderOptimizer
     def skus
       @skus.dup
     end
-
-    def skus_without_min_quantities
-      @skus.reject(&:min_quantity)
-    end
-
-    def skus_with_min_quantities
-      @skus.select(&:min_quantity)
-    end
   end
 end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    order_optimizer (0.1.0)
+    order_optimizer (0.2.1)
 
 GEM
   remote: https://rubygems.org/
