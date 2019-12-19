@@ -58,6 +58,16 @@ class OrderOptimizerTest < Minitest::Test
     assert_equal 700, order.quantity
     assert_equal 82, order.total
     assert_equal({ 'SKU-1' => 1, 'SKU-2' => 1 }, order.skus)
+
+    order = optimizer.cheapest_order(required_qty: 1400)
+    assert_equal 1400, order.quantity
+    assert_equal 164, order.total
+    assert_equal({ 'SKU-1' => 2, 'SKU-2' => 2 }, order.skus)
+
+    order = optimizer.cheapest_order(required_qty: 1500)
+    assert_equal 1650, order.quantity
+    assert_equal 180, order.total
+    assert_equal({ 'SKU-2' => 3 }, order.skus)
   end
 
   def test_that_it_works_with_many_different_pack_sizes
