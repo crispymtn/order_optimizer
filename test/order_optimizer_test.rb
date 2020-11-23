@@ -169,4 +169,53 @@ class OrderOptimizerTest < Minitest::Test
     assert_equal 20_100, order.total
     assert_equal({ '1000-pack' => 2, '250-pack' => 1 }, order.skus)
   end
+
+  def test_that_it_works_with_exact_match
+    optimizer = OrderOptimizer.new(
+      '100-pack' => { quantity: 100, price_per_sku: 22 },
+      '500-pack' => { quantity: 500, price_per_sku: 80 }
+    )
+
+    order = optimizer.cheapest_exact_order(required_qty: 600)
+    assert_equal 600, order.quantity
+    assert_equal 102, order.total
+    assert_equal({ '500-pack' => 1, '100-pack' => 1 }, order.skus)
+  end
+
+  def test_that_it_returns_empty_order_if_not_exact_match
+    optimizer = OrderOptimizer.new(
+      '500-pack' => { quantity: 500, price_per_sku: 80 }
+    )
+
+    order = optimizer.cheapest_exact_order(required_qty: 600)
+    assert_equal 0, order.quantity
+    assert_equal 0, order.total
+    assert_equal({}, order.skus)
+  end
+
+  def test_that_it_works_with_exact_match_and_min_quantity
+    optimizer = OrderOptimizer.new(
+      '100-pack' => { quantity: 100, price_per_sku: 22 },
+      '500-pack' => { quantity: 500, price_per_unit: 80, min_quantity: 1000 }
+    )
+
+    order = optimizer.cheapest_exact_order(required_qty: 600)
+    assert_equal 600, order.quantity
+    assert_equal 132, order.total
+    assert_equal({ '100-pack' => 6 }, order.skus)
+  end
+
+  def test_that_it_works_with_exact_match_and_many_different_package_sizes
+    optimizer = OrderOptimizer.new(
+      '1-pack' => { quantity: 1, price_per_sku: 9 },
+      '10-pack' => { quantity: 10, price_per_sku: 60 },
+      '100-pack' => { quantity: 100, price_per_sku: 400 },
+      '250-pack' => { quantity: 250, price_per_sku: 875 }
+    )
+
+    order = optimizer.cheapest_exact_order(required_qty: 946)
+    assert_equal 946, order.quantity
+    assert_equal 3619, order.total
+    assert_equal({ '250-pack' => 3, '100-pack' => 1, '10-pack' => 9, '1-pack' => 6 }, order.skus)
+  end
 end

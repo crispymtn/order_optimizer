@@ -23,5 +23,9 @@ class OrderOptimizer
     def complete?
       missing_qty.zero?
     end
+
+    def exact?
+      @required_qty == quantity
+    end
   end
 end
