@@ -1,6 +1,6 @@
 # OrderOptimizer Gem Changelog
 
-## Unreleased
+## 0.3.0 (2020-11-23)
 
 - Add `cheapest_exact_order` method to optimize an order with an exact amount
 
