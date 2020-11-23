@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name     = "order_optimizer"
   spec.version  = OrderOptimizer::VERSION
 
-  spec.authors  = ["crispymtn", "Martin Spickermann"]
+  spec.authors  = ["crispymtn", "Martin Spickermann", "Maurice Vogel"]
   spec.email    = ["op@crispymtn.com", "spickermann@gmail.com"]
   spec.homepage = "https://github.com/crispymtn/order_optimizer"
   spec.license  = "MIT"

@@ -56,6 +56,22 @@ cheapest_order_for_947_units.total    # => 3_900.00
 cheapest_order_for_947_units.skus     # => { '1000-pack' => 1 }
 ```
 
+You can also optimize your order for exact order amounts
+
+```ruby
+# Initialize the optimize with a catalog
+order_optimizer = OrderOptimizer.new(
+  '1-pack' => { quantity: 1, price_per_unit: 9 },
+  '10-pack' => { quantity: 10, price_per_unit: 5 },
+)
+
+# Pick the cheapest order that includes the exact required quantity
+cheapest_exact_order_for_58_units = order_optimizer.cheapest_exact_order(required_qty: 56)
+cheapest_exact_order_for_58_units.quantity # => 58
+cheapest_exact_order_for_58_units.total # => 322
+cheapest_exact_order_for_58_units.skus # => { '10-pack' => 5, '1-pack' => 8 }
+```
+
 It is possible to define dicount prices a minimum quantity:
 
 ```ruby

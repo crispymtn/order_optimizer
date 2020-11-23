@@ -217,5 +217,21 @@ class OrderOptimizerTest < Minitest::Test
     assert_equal 946, order.quantity
     assert_equal 3619, order.total
     assert_equal({ '250-pack' => 3, '100-pack' => 1, '10-pack' => 9, '1-pack' => 6 }, order.skus)
+
+    optimizer = OrderOptimizer.new(
+      '1-pack' => { quantity: 1, price_per_sku: 8 },
+      '10-pack' => { quantity: 10, price_per_sku: 85 },
+      '25-pack' => { quantity: 25, price_per_sku: 195 }
+    )
+
+    order = optimizer.cheapest_exact_order(required_qty: 36)
+    assert_equal 36, order.quantity
+    assert_equal 283, order.total
+    assert_equal({ '25-pack' => 1, '1-pack' => 11 }, order.skus)
+
+    order = optimizer.cheapest_exact_order(required_qty: 12)
+    assert_equal 12, order.quantity
+    assert_equal 96, order.total
+    assert_equal({ '1-pack' => 12 }, order.skus)
   end
 end
