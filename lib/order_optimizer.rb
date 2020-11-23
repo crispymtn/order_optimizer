@@ -10,8 +10,13 @@ class OrderOptimizer
   end
 
   def cheapest_order(required_qty:)
-    possible_orders(skus: @catalog.skus, required_qty: required_qty)
-      .min_by(&:total) || OrderOptimizer::Order.new(required_qty: required_qty)
+    possible_orders(skus: @catalog.skus, required_qty: required_qty).min_by(&:total) ||
+      OrderOptimizer::Order.new(required_qty: required_qty)
+  end
+
+  def cheapest_exact_order(required_qty:)
+    possible_orders(skus: @catalog.skus, required_qty: required_qty).select(&:exact?).min_by(&:total) ||
+      OrderOptimizer::Order.new(required_qty: required_qty)
   end
 
   private
@@ -34,6 +39,7 @@ class OrderOptimizer
       unless count.zero?
         orders << OrderOptimizer::Order.new(required_qty: required_qty).add(sku, count: count)
       end
+
       if remainder
         orders << OrderOptimizer::Order.new(required_qty: required_qty).add(sku, count: count + 1)
       end
