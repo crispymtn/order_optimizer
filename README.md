@@ -100,6 +100,21 @@ order_optimizer.cheapest_order(required_qty: 29).skus
 #=> { '20-pack' => 1, '10-discount' => 10 }
 ```
 
+If you're just interested in all possible order combinations:
+
+```ruby
+# Initialize the optimize with a catalog
+order_optimizer = OrderOptimizer.new(
+  '1-pack' => { quantity: 1, price_per_unit: 9 },
+  '10-pack' => { quantity: 10, price_per_unit: 5 },
+)
+
+order_optimizer.possible_orders(required_qty: 11).size
+#=> 3
+order_optimizer.possible_orders(required_qty: 10).map(&:skus)
+#=> [{"10-pack"=>1, "1-pack"=>1}, {"1-pack"=>11}, {"10-pack"=>2}]
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
