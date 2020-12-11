@@ -1,5 +1,10 @@
 # OrderOptimizer Gem Changelog
 
+## 0.4.0 (2020-12-11)
+
+- Add `possible_orders` method to find all possible orders
+- Fix issues with zero remainders on calculations
+
 ## 0.3.0 (2020-11-23)
 
 - Add `cheapest_exact_order` method to optimize an order with an exact amount

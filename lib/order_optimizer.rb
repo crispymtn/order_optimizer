@@ -10,18 +10,22 @@ class OrderOptimizer
   end
 
   def cheapest_order(required_qty:)
-    possible_orders(skus: @catalog.skus, required_qty: required_qty).min_by(&:total) ||
+    find_possible_orders(skus: @catalog.skus, required_qty: required_qty).min_by(&:total) ||
       OrderOptimizer::Order.new(required_qty: required_qty)
   end
 
   def cheapest_exact_order(required_qty:)
-    possible_orders(skus: @catalog.skus, required_qty: required_qty).select(&:exact?).min_by(&:total) ||
+    find_possible_orders(skus: @catalog.skus, required_qty: required_qty).select(&:exact?).min_by(&:total) ||
       OrderOptimizer::Order.new(required_qty: required_qty)
+  end
+
+  def possible_orders(required_qty:)
+    find_possible_orders(skus: @catalog.skus, required_qty: required_qty).sort_by(&:total)
   end
 
   private
 
-  def possible_orders(required_qty:, skus:)
+  def find_possible_orders(required_qty:, skus:)
     return [] if required_qty < 1 || skus.empty?
 
     orders = []
@@ -31,7 +35,7 @@ class OrderOptimizer
         count, remainder = count_and_remainder_for_sku(order.missing_qty, sku)
 
         orders << order.dup.add(sku, count: count) unless count.zero?
-        orders << order.dup.add(sku, count: count + 1) if remainder
+        orders << order.dup.add(sku, count: count + 1) unless remainder.zero?
       end
 
       count, remainder = count_and_remainder_for_sku(required_qty, sku)
@@ -40,7 +44,7 @@ class OrderOptimizer
         orders << OrderOptimizer::Order.new(required_qty: required_qty).add(sku, count: count)
       end
 
-      if remainder
+      unless remainder.zero?
         orders << OrderOptimizer::Order.new(required_qty: required_qty).add(sku, count: count + 1)
       end
     end

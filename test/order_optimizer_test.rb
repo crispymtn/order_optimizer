@@ -234,4 +234,24 @@ class OrderOptimizerTest < Minitest::Test
     assert_equal 96, order.total
     assert_equal({ '1-pack' => 12 }, order.skus)
   end
+
+  def test_that_it_can_return_all_possible_orders
+    optimizer = OrderOptimizer.new(
+      '1-pack' => { quantity: 1, price_per_unit: 9 },
+      '10-pack' => { quantity: 10, price_per_unit: 5 },
+    )
+
+    orders = optimizer.possible_orders(required_qty: 11)
+    assert_equal 3, orders.count
+
+    optimizer = OrderOptimizer.new(
+      '1-pack' => { quantity: 1, price_per_sku: 9 },
+      '10-pack' => { quantity: 10, price_per_sku: 60 },
+      '100-pack' => { quantity: 100, price_per_sku: 400 },
+      '250-pack' => { quantity: 250, price_per_sku: 875 }
+    )
+
+    orders = optimizer.possible_orders(required_qty: 946)
+    assert_equal 15, orders.count
+  end
 end
