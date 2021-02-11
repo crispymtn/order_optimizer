@@ -1,0 +1,63 @@
+version: 2.1
+jobs:
+  test:
+    docker:
+      - image: circleci/ruby:3.0
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "order_optimizer.gemspec" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: bundle install --jobs=4 --retry=3 --path vendor/bundle
+
+      - save_cache:
+          paths:
+            - ./vendor/bundle
+          key: v1-dependencies-{{ checksum "order_optimizer.gemspec" }}
+
+      - run:
+          name: run tests
+          command: bundle exec rake
+
+  publish:
+    docker:
+      - image: circleci/ruby:3.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Build package
+          command: gem build order_optimizer.gemspec
+      - run:
+          name: Push package
+          command: |
+            VERSION=$(ruby -r "./lib/order_optimizer/version.rb" -e "print OrderOptimizer::VERSION")
+            gem push order_optimizer-${VERSION}.gem
+
+workflows:
+  default:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: /.*/
+      - publish:
+          context:
+            - rubygems-push
+          requires: [test]
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
