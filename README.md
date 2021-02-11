@@ -119,11 +119,22 @@ order_optimizer.possible_orders(required_qty: 10).map(&:skus)
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/crispymtn/order_optimizer. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at
+https://github.com/crispymtn/order_optimizer. This project is intended to be a safe,
+welcoming space for collaboration, and contributors are expected to adhere to the
+[Contributor Covenant](http://contributor-covenant.org) code of conduct.
+
+- Make your changes and submit a pull request for them
+- Make sure to update `CHANGELOG.md`
+
+To release a new version of the gem:
+- Update the version in `lib/order_optimizer/version.rb`
+- Update `CHANGELOG.md` to include the new version and its release date
+- Commit and push your changes
+- Create a [new release on GitHub](https://github.com/zaikio/order_optimizer/releases/new)
+- CircleCI will build the Gem package and push it Rubygems for you
 
 ## License
 
