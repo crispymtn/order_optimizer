@@ -7,13 +7,13 @@ Gem::Specification.new do |spec|
   spec.version  = OrderOptimizer::VERSION
 
   spec.authors  = ["crispymtn", "Martin Spickermann", "Maurice Vogel"]
-  spec.email    = ["op@crispymtn.com", "spickermann@gmail.com"]
-  spec.homepage = "https://github.com/crispymtn/order_optimizer"
+  spec.email    = ["op@zaikio.com", "spickermann@gmail.com"]
+  spec.homepage = "https://github.com/zaikio/order_optimizer"
   spec.license  = "MIT"
   spec.summary  = "Helps to optimize orders if the goods are offered in different pack sizes and in different discount levels."
 
 
-  spec.metadata["changelog_uri"] = "https://github.com/crispymtn/order_optimizer/blob/master/CHANGELOG.md"
+  spec.metadata["changelog_uri"] = "https://github.com/zaikio/order_optimizer/blob/master/CHANGELOG.md"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
 
