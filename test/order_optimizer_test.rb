@@ -254,4 +254,22 @@ class OrderOptimizerTest < Minitest::Test
     orders = optimizer.possible_orders(required_qty: 946)
     assert_equal 15, orders.count
   end
+
+  def test_that_it_does_not_have_floating_point_issues
+    optimizer = OrderOptimizer.new(
+      '1-pack' => { quantity: BigDecimal("715.392"),
+                    min_quantity: BigDecimal("715.392"),
+                    price_per_unit: 1 },
+    )
+    order, = optimizer.possible_orders(required_qty: 1)
+    assert_equal({ '1-pack' => 1 }, order.skus)
+
+    optimizer = OrderOptimizer.new(
+      '1-pack' => { quantity: 101,
+                    min_quantity: 100,
+                    price_per_unit: 1 },
+    )
+    order, = optimizer.possible_orders(required_qty: 1)
+    assert_equal({ '1-pack' => 1 }, order.skus)
+  end
 end
