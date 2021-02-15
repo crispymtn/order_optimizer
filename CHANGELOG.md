@@ -1,5 +1,9 @@
 # OrderOptimizer Gem Changelog
 
+## 0.4.1 (2021-02-15)
+
+- Fix issue with floating point conversion [#3]
+
 ## 0.4.0 (2020-12-11)
 
 - Add `possible_orders` method to find all possible orders
@@ -18,3 +22,5 @@
 - Add support for discounts when ordering a minimum quantity
 
 ## 0.1.0 First release
+
+[#3]: https://github.com/zaikio/order_optimizer/pull/3
