@@ -32,19 +32,19 @@ class OrderOptimizer
 
     skus.each do |sku|
       orders.reject(&:complete?).each do |order|
-        count, remainder = count_and_remainder_for_sku(order.missing_qty, sku)
+        count, remainder, skip_increase = count_and_remainder_for_sku(order.missing_qty, sku)
 
         orders << order.dup.add(sku, count: count) unless count.zero?
-        orders << order.dup.add(sku, count: count + 1) unless remainder.zero?
+        orders << order.dup.add(sku, count: count + 1) unless remainder.zero? || skip_increase
       end
 
-      count, remainder = count_and_remainder_for_sku(required_qty, sku)
+      count, remainder, skip_increase = count_and_remainder_for_sku(required_qty, sku)
 
       unless count.zero?
         orders << OrderOptimizer::Order.new(required_qty: required_qty).add(sku, count: count)
       end
 
-      unless remainder.zero?
+      unless remainder.zero? || skip_increase
         orders << OrderOptimizer::Order.new(required_qty: required_qty).add(sku, count: count + 1)
       end
     end
@@ -55,12 +55,18 @@ class OrderOptimizer
   def count_and_remainder_for_sku(quantity, sku)
     count, remainder = quantity.divmod(sku.quantity)
 
-    if sku.min_quantity && count * sku.quantity < sku.min_quantity
+    if sku.max_quantity && count * sku.quantity > sku.max_quantity
+      new_count = (sku.max_quantity / sku.quantity).ceil
+      remainder = (count - new_count) * sku.quantity
+
+      [new_count, [remainder, 0].max, true]
+    elsif sku.min_quantity && count * sku.quantity < sku.min_quantity
       new_count = (sku.min_quantity / sku.quantity).ceil
       remainder -= (new_count - count) * sku.quantity
-      [new_count, [remainder, 0].max]
+
+      [new_count, [remainder, 0].max, false]
     else
-      [count, remainder]
+      [count, remainder, false]
     end
   end
 end

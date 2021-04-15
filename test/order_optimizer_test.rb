@@ -272,4 +272,42 @@ class OrderOptimizerTest < Minitest::Test
     order, = optimizer.possible_orders(required_qty: 1)
     assert_equal({ '1-pack' => 1 }, order.skus)
   end
+
+  def test_that_it_respects_maximum_quantities
+    optimizer = OrderOptimizer.new(
+      '1-pack' => { quantity: 1, price_per_sku: 9 },
+      '10-pack' => { quantity: 10, price_per_sku: 60, max_quantity: 10 }
+    )
+
+    order = optimizer.cheapest_order(required_qty: 20)
+    assert_equal 20, order.quantity
+    assert_equal 150, order.total
+    assert_equal({ '10-pack' => 1, '1-pack' => 10 }, order.skus)
+
+    optimizer = OrderOptimizer.new(
+      '1-pack' => { quantity: 1, price_per_sku: 9 },
+      '10-pack' => { quantity: 10, price_per_sku: 60, max_quantity: 10 },
+      '20-pack' => { quantity: 20, price_per_sku: 50, max_quantity: 40 }
+    )
+
+    order = optimizer.cheapest_order(required_qty: 60)
+    assert_equal 60, order.quantity
+    assert_equal({ '20-pack' => 2, '10-pack' => 1, '1-pack' => 10 }, order.skus)
+    assert_equal 250, order.total
+
+    optimizer = OrderOptimizer.new(
+      '10-pack' => { quantity: 10, price_per_sku: 60, max_quantity: 10 }
+    )
+
+    orders = optimizer.possible_orders(required_qty: 20)
+    assert_equal 0, orders.count
+  end
+
+  def test_raises_argument_error_if_min_quantity_larger_than_max_quantity
+    assert_raises ArgumentError, "min_quantity can't be larger than max_quantity" do
+      OrderOptimizer.new(
+        '1-pack' => { quantity: 1, price_per_sku: 9, min_quantity: 10, max_quantity: 5 }
+      )
+    end
+  end
 end

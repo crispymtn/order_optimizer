@@ -72,7 +72,7 @@ cheapest_exact_order_for_58_units.total # => 322
 cheapest_exact_order_for_58_units.skus # => { '10-pack' => 5, '1-pack' => 8 }
 ```
 
-It is possible to define dicount prices a minimum quantity:
+It is possible to define discount prices with a minimum quantity:
 
 ```ruby
 order_optimizer = OrderOptimizer.new(
@@ -98,6 +98,17 @@ order_optimizer.cheapest_order(required_qty: 21).skus
 
 order_optimizer.cheapest_order(required_qty: 29).skus
 #=> { '20-pack' => 1, '10-discount' => 10 }
+```
+
+It is also possible to define discount prices with a maximum quantity:
+```ruby
+order_optimizer = OrderOptimizer.new(
+  '1-pack' => { quantity: 1, price_per_unit: 9 },
+  '10-pack' => { quantity: 10, price_per_unit: 8, max_quantity: 20 },
+)
+
+order_optimizer.cheapest_order(required_qty: 30).skus
+#=> { '10-pack' => 2, '1-pack' => 10 }
 ```
 
 If you're just interested in all possible order combinations:

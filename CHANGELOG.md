@@ -1,5 +1,8 @@
 # OrderOptimizer Gem Changelog
 
+## 0.5.0 (2021-04-15)
+- Add `maximum_quantity` for SKUs
+
 ## 0.4.1 (2021-02-15)
 
 - Fix issue with floating point conversion [#3]
